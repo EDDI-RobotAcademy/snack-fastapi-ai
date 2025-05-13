@@ -1,17 +1,23 @@
 from openai import OpenAI
+from langsmith import Client, traceable
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class LLMServiceImpl:
     def __init__(self):
-        self.client = OpenAI(
-            api_key=os.getenv("OPENAI_API_KEY"),
-            timeout=10  # ✅ 여기서 timeout 설정
-        )
+        # LangSmith 클라이언트 설정
+        self.client = Client(api_key=os.getenv("LANGCHAIN_API_KEY"))
+
+        # OpenAI 클라이언트 설정
+        self.openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"),
+                                    timeout=10)
 
     def get_response_from_openai(self, prompt: str) -> str:
         print(f"🔍 프롬프트:\n{prompt}")
         try:
-            response = self.client.chat.completions.create(
+            response = self.openai_client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.7,
